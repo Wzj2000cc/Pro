@@ -1,0 +1,29 @@
+[2022-06-15 09:36:52,730] - views.py [Line:19] - [INFO] - 数据库创建成功
+[2022-06-15 09:40:16,226] - views.py [Line:19] - [INFO] - 数据库创建成功
+[2022-06-15 09:41:12,075] - views.py [Line:19] - [INFO] - 数据库创建成功
+[2022-06-15 09:42:44,581] - views.py [Line:163] - [INFO] - 用户:Wzj 生成二维码（wzjcode）失败!
+[2022-06-15 09:42:44,581] - views.py [Line:164] - [ERROR] - Foreign key associated with column 'code_two.usercode' could not find table 'table_name' with which to generate a foreign key to target column 'id'
+[2022-06-15 09:43:30,848] - views.py [Line:19] - [INFO] - 数据库创建成功
+[2022-06-15 09:44:30,792] - views.py [Line:163] - [INFO] - 用户:Wzj 生成二维码（wzjcode）失败!
+[2022-06-15 09:44:30,792] - views.py [Line:164] - [ERROR] - Foreign key associated with column 'code_two.usercode' could not find table 'table_name' with which to generate a foreign key to target column 'id'
+[2022-06-15 09:51:02,866] - views.py [Line:19] - [INFO] - 数据库创建成功
+[2022-06-15 09:52:24,734] - views.py [Line:163] - [INFO] - 用户:Wzj 生成二维码（wzjcode）失败!
+[2022-06-15 09:52:24,734] - views.py [Line:164] - [ERROR] - (pymysql.err.DataError) (1406, "Data too long for column 'png_base64' at row 1") [SQL: 'INSERT INTO code_two (code_name, to_path, svg_path, png_base64, usercode) VALUES (%(code_name)s, %(to_path)s, %(svg_path)s, %(png_base64)s, %(usercode)s)'] [parameters: {'code_name': 'wzjcode.svg', 'to_path': 'https://www.baidu.com/', 'svg_path': '/home/binbao/PycharmProjects/Pro/wzjcode.svg', 'png_base64': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoCAIAAABkZftOAAAFMElEQVR4nO3dQY7cRhAAQcvww/fno4PONNACuVm1jDgOFiQ9cqIOheb8+nw+/wDf69/6AeCNhAcB4UF ... (1572 characters truncated) ... QEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EBAeBIQHAeFBQHgQEB4EhAcB4UFAeBAQHgSEBwHhQUB4EPgNxM35MShfv5oAAAAASUVORK5CYII=', 'usercode': 1}] (Background on this error at: http://sqlalche.me/e/9h9h)
+[2022-06-15 09:57:09,985] - views.py [Line:160] - [INFO] - 用户:Wzj 生成二维码（wzjcode）成功!
+[2022-06-15 11:56:46,325] - views.py [Line:171] - [INFO] - admin（Wzj） 生成二维码（img_to_base）成功!
+[2022-06-15 12:09:09,520] - views.py [Line:173] - [INFO] - 管理员（Wzj） 生成二维码（cainiao）成功!
+[2022-06-15 15:18:16,267] - ck_login.py [Line:30] - [INFO] - 用户（Wzj）注销成功
+[2022-06-15 15:19:14,215] - views.py [Line:92] - [WARNING] - 用户名或密码错误
+[2022-06-15 15:19:38,974] - views.py [Line:92] - [WARNING] - 用户名或密码错误
+[2022-06-15 15:20:14,081] - views.py [Line:89] - [INFO] - （Wzj）用户已登录Pro平台
+[2022-06-15 15:20:18,163] - ck_login.py [Line:30] - [INFO] - 用户（Wzj）注销成功
+[2022-06-15 15:20:45,445] - views.py [Line:89] - [INFO] - （root）用户已登录Pro平台
+[2022-06-15 15:21:24,156] - views.py [Line:173] - [INFO] - None（root） 生成二维码（flask_fkey）成功!
+[2022-06-15 15:27:20,443] - ck_login.py [Line:30] - [INFO] - 用户（root）注销成功
+[2022-06-15 15:27:45,741] - views.py [Line:89] - [INFO] - （Lwd）用户已登录Pro平台
+[2022-06-15 15:29:24,614] - views.py [Line:174] - [INFO] - 管理员（Lwd） 生成二维码（Yl_Ecp）成功!
+[2022-06-15 17:56:06,044] - ck_login.py [Line:30] - [INFO] - 用户（Lwd）注销成功
+[2022-06-15 17:56:23,987] - views.py [Line:89] - [INFO] - （Wzj）用户已登录Pro平台
+[2022-06-15 17:58:10,242] - views.py [Line:58] - [ERROR] - [Errno 2] No such file or directory: '/home/binbao/PycharmProjects/Pro/application/apps/AI/辽宁工程模型.sql'
+[2022-06-15 17:58:43,546] - views.py [Line:58] - [ERROR] - [Errno 2] No such file or directory: '/home/binbao/桌面/工作空间/project/pro/application/apps/AI辽宁工程模型.sql'
+[2022-06-15 17:59:04,948] - views.py [Line:68] - [INFO] - 用户（Wzj）对文件辽宁工程模型.sql加密成功

@@ -1,0 +1,8 @@
+[2022-06-08 09:28:15,272] - ck_login.py [Line:32] - [WARNING] - 用户root 当前为离线状态, 无需注销
+[2022-06-08 09:28:38,162] - views.py [Line:96] - [INFO] - root用户已登录Pro平台
+[2022-06-08 09:28:56,249] - views.py [Line:315] - [INFO] - 用户root 执行sql优化操作 
+待优化sql：--项目成本明细表 select '当前状态为离线' as a.state --注释, a.uname from szhsj_dev.qrye_w_project_costdetail as a 
+优化后sql： select '' as a.state , a.uname from szhsj_dev.qrye_w_project_costdetail as a
+[2022-06-08 09:29:26,559] - views.py [Line:315] - [INFO] - 用户root 执行sql优化操作 
+待优化sql：--项目成本明细表 select a.state --注释, a.uname from szhsj_dev.qrye_w_project_costdetail as a 
+优化后sql： select a.state , a.uname from szhsj_dev.qrye_w_project_costdetail as a
