@@ -2,6 +2,7 @@ import json
 import os
 import base64
 import pyqrcode
+import cv2
 
 from glob import glob
 from pathlib import Path
@@ -15,8 +16,8 @@ from application.models.auth_model import db, User, Code_two
 
 AI_blu = Blueprint('ai', __name__)
 
-dst_dir = '/home/binbao/桌面/工作空间/project/pro/application/apps/AI/'
-file_dir = '/home/binbao/桌面/工作空间/project/pro/application/file'
+dst_dir = os.getcwd() + '/application/apps/AI/'
+file_dir = os.getcwd() + '/application/file'
 role_dict = {"admin": "管理员", "user": "审计用户", "person": "部门专责"}
 
 
@@ -180,15 +181,36 @@ def Code_Two():
         return Response(f'{role_code}（{uname}） 生成二维码（{code_name}）失败!')
 
 
+# 获取计算机信息
+@AI_blu.route('/wmi/', methods=['GET'])
+def System_spec():
+    img_name = request.args.get('img_name')
+    # 读取图片
+    img = cv2.imread(file_dir + "/" + img_name + ".jpg")
+    # 灰度
+    grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    invert = cv2.bitwise_not(grey)
+    # 高斯滤波
+    blur_img = cv2.GaussianBlur(invert, (7, 7), 0)
+    inverse_blur = cv2.bitwise_not(blur_img)
+    sketch_img = cv2.divide(grey, inverse_blur, scale=256.0)
+    # 保存
+    cv2.imwrite(img_name + '1.jpg', sketch_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    # 移动文件至file
+    common_method.mymovefile(os.getcwd() + '/' + img_name + '1.jpg', file_dir + '/')
+
+    return Response('素描图生成成功')
+
+
 @AI_blu.route('/test/', methods=['GET'])
 def Test():
-    srcfile = '/home/binbao/PycharmProjects/Pro/wzjcode.svg'
-    file_dir = '/home/binbao/PycharmProjects/Pro/application/file/'
-
-    try:
-        # src_file_list = glob(src_dir)  # glob获得路径下所有文件，可根据需要修改
-        # for srcfile in src_file_list:
-        common_method.mymovefile(srcfile, file_dir)  # 移动文件
-        return Response('1')
-    except Exception as e:
-        print(e)
+    # try:
+    #     # src_file_list = glob(src_dir)  # glob获得路径下所有文件，可根据需要修改
+    #     # for srcfile in src_file_list:
+    #     common_method.mymovefile(srcfile, file_dir)  # 移动文件
+    #     return Response('1')
+    # except Exception as e:
+    #     print(e)
+    return Response('1 ')

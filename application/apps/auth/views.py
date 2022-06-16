@@ -207,23 +207,17 @@ def Change_User():
             return Response('用户名输入为空，请重新输入')
         # ================
 
-        change_name = json_data.get('change_name')
-        change_pwd = common_method.md5(json_data.get('change_pwd'))
-        change_source = json_data.get('change_source')
-
-        if change_name and change_pwd and change_source:
-            users = User.query.filter_by(uname=uname).all()
-            for name in users:
-                name.uname = change_name
-                name.pwd = change_pwd
-                name.source = change_source
-                name.status = False
-
+        if json_data.get('change_name') and common_method.md5(json_data.get('change_pwd')) and json_data.get(
+                'change_source'):
+            User.query.filter_by(uname=uname).update(
+                {"uname": json_data.get('change_name'), "pwd": common_method.md5(json_data.get('change_pwd')),
+                 "source": json_data.get('change_source'), "status": False}
+            )
             try:
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                logger.info(f"用户（{uname}）注销失败!")
+                logger.info(f"用户（{uname}）信息修改失败!")
                 logger.error(e)
 
             logger.info(f'用户（{uname}）修改个人信息成功, 即将登出')
