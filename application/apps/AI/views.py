@@ -201,6 +201,7 @@ def System_spec():
     # 移动文件至file
     common_method.mymovefile(os.getcwd() + '/' + img_name + '1.jpg', file_dir + '/')
 
+    logger.info(f'素描图（{img_name}）生成成功')
     return Response('素描图生成成功')
 
 
