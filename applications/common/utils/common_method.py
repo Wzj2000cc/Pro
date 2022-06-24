@@ -3,7 +3,6 @@ import hashlib
 import os
 import re
 import shutil
-import pyqrcode
 
 from secrets import token_bytes
 
@@ -77,8 +76,6 @@ def decrypt(encrypted, key_int):  # 解密单元
     length = (decrypted.bit_length() + 7) // 8  # 计算所占比特大小
     decrypted_bytes = int.to_bytes(decrypted, length, 'big')  # 将int转换回byte
     return decrypted_bytes.decode()
-
-
 # ========
 
 
@@ -97,7 +94,3 @@ def mymovefile(srcfile, dstpath):  # 移动函数
 # src_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/test/'
 # dst_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/'  # 目的路径记得加斜杠
 # ========
-
-def code(to_path, code_name):
-    url = pyqrcode.create(to_path)
-    url.svg(code_name + '.svg', scale=8)

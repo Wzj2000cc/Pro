@@ -1,0 +1,4 @@
+[2022-06-17 11:10:46,689] - views.py [Line:89] - [INFO] - （Zj）用户已登录Pro平台
+[2022-06-17 11:10:53,663] - views.py [Line:69] - [INFO] - 用户（Zj）对文件wzjfile.txt加密成功
+[2022-06-17 11:11:09,319] - views.py [Line:117] - [INFO] - 用户（Zj）对加密文件wzjfile.txt解密成功
+[2022-06-17 11:11:29,662] - ck_login.py [Line:30] - [INFO] - 用户（Zj）注销成功
