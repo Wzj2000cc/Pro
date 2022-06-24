@@ -163,7 +163,8 @@ def algorithm():
     json_data = json.loads(data)
     uname = validate.xss_escape(json_data.get('uname'))
     sort_name = validate.xss_escape(json_data.get('sort_name'))
-    num_list = list(json_data.get('num_list'))
+    user_list = list(json_data.get('num_list'))
+    num_list = user_list[:]
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
@@ -180,7 +181,7 @@ def algorithm():
     result = getattr(Algorithm, a_method)(alg_obj, num_list)
     end = datetime.now()
 
-    logs.logger.info(f'用户（{uname}）使用（{sort_name}）计算了数列（{num_list}）,耗时（{end - start}）\n'
+    logs.logger.info(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）,耗时（{end - start}）\n'
                      f'计算结果为（{result}）')
-    return Response(f'用户（{uname}）使用（{sort_name}）计算了数列（{num_list}）,耗时（{end - start}）\n'
+    return Response(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）,耗时（{end - start}）\n'
                     f'计算结果为（{result}）')
