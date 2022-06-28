@@ -6,7 +6,7 @@ from common.utils import ck_login, validate, logs
 
 Turtle_blu = Blueprint('tur', __name__)
 algorithm_dict = {"冒泡排序": "bubbleSort", "选择排序": "selectionSort", "插入排序": "insertionSort", "希尔排序": "shellSort",
-                  "归并排序": "mergeSort", "快速排序": "quickSort", "堆排序": "buildMaxHeap", "计数排序": "countingSort"}
+                  "归并排序": "mergeSort", "快速排序": "quickSort", "堆排序": 'heapSort', "计数排序": "counting_sort"}
 
 
 class Algorithm(object):
@@ -107,54 +107,55 @@ class Algorithm(object):
     def swap(self, arr, i, j):
         arr[i], arr[j] = arr[j], arr[i]
 
-    # 堆排序
-    def buildMaxHeap(self, arr):
-        import math
-        for i in range(math.floor(len(arr) / 2), -1, -1):
-            self.heapify(arr, i)
-
-    def heapify(self, arr, i):
-        left = 2 * i + 1
-        right = 2 * i + 2
-        largest = i
-        if left < arrLen and arr[left] > arr[largest]:
-            largest = left
-        if right < arrLen and arr[right] > arr[largest]:
-            largest = right
-
-        if largest != i:
-            self.swap(arr, i, largest)
-            self.heapify(arr, largest)
-
-    def swap(self, arr, i, j):
-        arr[i], arr[j] = arr[j], arr[i]
-
-    def heapSort(self, arr):
-        global arrLen
-        arrLen = len(arr),
-        self.buildMaxHeap(arr)
-        for i in range(len(arr) - 1, 0, -1):
-            self.swap(arr, 0, i)
-            arrLen -= 1
-            self.heapify(arr, 0)
-        return arr
-
     # 计数排序
-    def countingSort(self, arr, maxValue):
-        bucketLen = maxValue + 1
-        bucket = [0] * bucketLen
-        sortedIndex = 0
-        arrLen = len(arr)
-        for i in range(arrLen):
-            if not bucket[arr[i]]:
-                bucket[arr[i]] = 0
-            bucket[arr[i]] += 1
-        for j in range(bucketLen):
-            while bucket[j] > 0:
-                arr[sortedIndex] = j
-                sortedIndex += 1
-                bucket[j] -= 1
-        return arr
+    def counting_sort(self, array):
+        if len(array) < 2:
+            return array
+        max_num = max(array)
+        count = [0] * (max_num + 1)
+        for num in array:
+            count[num] += 1
+        new_array = list()
+        for i in range(len(count)):
+            for j in range(count[i]):
+                new_array.append(i)
+        return new_array
+
+
+# 堆排序
+def buildMaxHeap(arr):
+    import math
+    for i in range(math.floor(len(arr) / 2), -1, -1):
+        heapify(arr, i)
+
+
+def heapify(arr, i):
+    left = 2 * i + 1
+    right = 2 * i + 2
+    largest = i
+    if left < arrLen and arr[left] > arr[largest]:
+        largest = left
+    if right < arrLen and arr[right] > arr[largest]:
+        largest = right
+
+    if largest != i:
+        swap(arr, i, largest)
+        heapify(arr, largest)
+
+
+def swap(arr, i, j):
+    arr[i], arr[j] = arr[j], arr[i]
+
+
+def heapSort(arr):
+    global arrLen
+    arrLen = len(arr)
+    buildMaxHeap(arr)
+    for i in range(len(arr) - 1, 0, -1):
+        swap(arr, 0, i)
+        arrLen -= 1
+        heapify(arr, 0)
+    return arr
 
 
 @Turtle_blu.route('/alg/', methods=['POST'])
@@ -178,10 +179,20 @@ def algorithm():
     alg_obj = Algorithm()
     a_method = algorithm_dict[sort_name]
     start = datetime.now()
-    result = getattr(Algorithm, a_method)(alg_obj, num_list)
+
+    result = None
+    if sort_name == '堆排序':
+        result = heapSort(num_list)
+    else:
+        try:
+            result = getattr(Algorithm, a_method)(alg_obj, num_list)
+        except Exception as e:
+            print(e)
     end = datetime.now()
 
-    logs.logger.info(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）,耗时（{end - start}）\n'
+    logs.logger.info(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）\n'
+                     f'耗时（{end - start}）\n'
                      f'计算结果为（{result}）')
-    return Response(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）,耗时（{end - start}）\n'
+    return Response(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）\n'
+                    f'耗时（{end - start}）\n'
                     f'计算结果为（{result}）')
