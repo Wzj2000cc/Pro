@@ -1,37 +1,95 @@
 # Pro
 
-#### 介绍
-基础的flask框架及部分功能
+#### 项目简介
+> Pro 基于 Flask  的基础入门功能框架
+>
+> 项目旨在为python开发者提供一个入门框架的模板，成为您构建功能，快速开发....等应用时灵活，简单的工具
+>
+> 众人拾柴火焰高，欢迎pythoner参与项目~
 
 #### 软件架构
-软件架构说明
+```
+​```
+Pro
+├─applications  # 应用
+│  ├─common   # 公共文件
+│  ├─configs  # 配置文件
+│  │  └─ config.py  # 配置文件对象
+│  ├─extensions  # 注册插件
+│  ├─models  # 数据模型
+│  └─views  # 视图部分
+│     ├─AI     # 人工智能视图模块
+│     ├─auth   # 用户应用视图模块
+│     ├─tutle  # Pd视图模块
+├─docs  # 文档说明（占坑）
+├─migrations  # 迁移文件记录
+├─requirement  # 依赖文件
+├─test # 测试文件夹（占坑）
+└─.env # 项目的配置文件
+
+​```
+```
 
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+```bash
+# 下 载
+git clone https://gitee.com/wang-zejun6/pro.git
 
-#### 使用说明
+# 安 装
+pip install -r requirement\requirement-dev.txt
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+# 配 置
+.env
 
-#### 参与贡献
+```
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+#### 修改配置
 
+```python
+config.py
+# MySql配置信息
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_DATABASE=audit_dataset_db
+MYSQL_USERNAME=root
+MYSQL_PASSWORD=xxxxxx
 
-#### 特技
+# Redis 配置
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+```
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### Venv 安装
+
+```
+python -m venv Pro
+```
+
+#### 运行项目
+
+```bash
+# 初 始 化 数 据 库
+
+flask init
+```
+
+#### 配置执行信息
+
+```
+运行app.py文件
+```
+
+#### 命令行创建视图
+
+```bash
+# 示例
+
+flask new --type view --name test/a
+
+# 自动注册蓝图
+# 访问http://127.0.0.1:5000/test/a/
+```
+
+#### 

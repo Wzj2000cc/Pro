@@ -17,14 +17,17 @@ def create_app():
     app.register_blueprint(blueprint=index_blu, url_prefix='/index')
     app.register_blueprint(blueprint=AI_blu, url_prefix='/ai')
     app.register_blueprint(blueprint=Turtle_blu, url_prefix='/tur')
-    # 配置mysql数据库
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:rooter@10.1.90.145:19103/dev_data_set?charset=utf8mb4'
-    # app.config['SQLALCHEMY_BINDS'] = {
-    #     'model_db': 'mysql+pymysql://root:rooter@10.1.90.145:19103/dev_zb_szhsjpt?charset=utf8mb4',          # 测试过mysql、sgrdb
-    #     'dataset_db': 'mysql+pymysql://root:rooter@10.1.90.145:19103/dev_data_set?charset=utf8mb4',
-    # }
+
+    # mysql 配置
+    MYSQL_USERNAME = "root"
+    MYSQL_PASSWORD = "rooter"
+    MYSQL_HOST = "127.0.0.1"
+    MYSQL_PORT = 3306
+    MYSQL_DATABASE = "audit_dataset_db"
+
     app.config[
-        'SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:rooter@127.0.0.1:3306/audit_dataset_db?charset=utf8mb4'
+        'SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/" \
+                                     f"{MYSQL_DATABASE}?charset=utf8mb4"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # 设置session密钥
