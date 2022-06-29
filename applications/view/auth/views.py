@@ -330,7 +330,6 @@ def Sql():
     uname = validate.xss_escape(json.loads(data).get('uname'))
 
     # ======== 安全登录校验 ========
-    # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
         return Response('该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):

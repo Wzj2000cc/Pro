@@ -70,8 +70,8 @@ def Lock_file(key_path=None, *, encoding='utf-8'):
     return Response(f'用户（{uname}）对文件{path.name}加密成功')
 
 
-@AI_blu.route('/unlockfile/', methods=['GET'])
 # 文件解密函数
+@AI_blu.route('/unlockfile/', methods=['GET'])
 def decrypt_file(key_path=None, *, encoding='utf-8'):
     uname = validate.xss_escape(request.args.get('uname'))
     file_name = validate.xss_escape(request.args.get('file_name'))
@@ -203,8 +203,3 @@ def System_spec():
 
     logger.info(f'素描图（{img_name}）生成成功')
     return Response('素描图生成成功')
-
-
-@AI_blu.route('/test/', methods=['GET'])
-def Test():
-    pass
