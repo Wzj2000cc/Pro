@@ -36,8 +36,6 @@ def quick_sort(array, start, end):
     array[left] = mid_data
     quick_sort(array, start, left - 1)
     quick_sort(array, left + 1, end)
-
-
 # ========
 
 
@@ -49,7 +47,7 @@ def find_unchinese(file):
         unchinese = str(re.sub(pattern, '', front_sql))
         rep_sql = unchinese.strip().replace('--', '')
         behind_sql = file.strip().split('where')[1]
-        to_sql = str(rep_sql + 'where' + behind_sql)
+        to_sql = str(rep_sql + ' where ' + behind_sql)
         return to_sql
     pattern = re.compile(r'[\u4e00-\u9fa5]')
     unchinese = str(re.sub(pattern, '', file))
@@ -89,7 +87,6 @@ def mymovefile(srcfile, dstpath):  # 移动函数
             os.makedirs(dstpath)  # 创建路径
         shutil.move(srcfile, dstpath + fname)  # 移动文件
         print("move %s -> %s" % (srcfile, dstpath + fname))
-
 
 # src_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/test/'
 # dst_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/'  # 目的路径记得加斜杠

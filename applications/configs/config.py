@@ -3,6 +3,7 @@ from flask import Flask
 from applications.view.auth.views import index_blu
 from applications.view.AI.views import AI_blu
 from applications.view.turtle.views import Turtle_blu
+from applications.view.content.views import Content_blu
 from applications.models.auth_model import db
 
 
@@ -17,6 +18,7 @@ def create_app():
     app.register_blueprint(blueprint=index_blu, url_prefix='/index')
     app.register_blueprint(blueprint=AI_blu, url_prefix='/ai')
     app.register_blueprint(blueprint=Turtle_blu, url_prefix='/tur')
+    app.register_blueprint(blueprint=Content_blu, url_prefix='/cnt')
 
     # mysql 配置
     MYSQL_USERNAME = "root"

@@ -73,6 +73,9 @@ def Lock_file(key_path=None, *, encoding='utf-8'):
 # 文件解密函数
 @AI_blu.route('/unlockfile/', methods=['GET'])
 def decrypt_file(key_path=None, *, encoding='utf-8'):
+    """
+    传参：?uname=Zj&file_name=wzjfile.txt
+    """
     uname = validate.xss_escape(request.args.get('uname'))
     file_name = validate.xss_escape(request.args.get('file_name'))
 
@@ -120,6 +123,13 @@ def decrypt_file(key_path=None, *, encoding='utf-8'):
 
 @AI_blu.route('/code_two/', methods=['POST'])
 def Code_Two():
+    """
+    传参：{
+      "uname": "Lwd",
+      "to_path": "https://hb.sjxt.vip/#/study/subject/index",
+      "code_name":"Yl_Ecp"
+    }
+    """
     data = request.get_data(as_text=True)
     json_data = json.loads(data)
     uname = validate.xss_escape(json_data.get('uname'))

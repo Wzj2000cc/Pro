@@ -23,7 +23,7 @@ def del_login(uname, now_time):
             user.quit_time = now_time
             # noinspection PyBroadException
             try:
-                db  .session.commit()
+                db.session.commit()
             except Exception:
                 db.session.rollback()
 

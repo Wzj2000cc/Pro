@@ -14,9 +14,12 @@ class Algorithm(object):
     # 冒泡排序
     def bubbleSort(self, arr):
         for i in range(1, len(arr)):
+            exchange = False
             for j in range(0, len(arr) - i):
                 if arr[j] > arr[j + 1]:
                     arr[j], arr[j + 1] = arr[j + 1], arr[j]
+            if not exchange:
+                return arr
         return arr
 
     # 选择排序

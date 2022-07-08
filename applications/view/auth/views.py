@@ -2,6 +2,7 @@ import json
 
 from flask import Blueprint, request, Response
 from applications.models.auth_model import User, db
+# from applications.models.content_model import db
 from common.utils import common_method, ck_login, validate
 from common.utils.logs import logger
 
@@ -33,6 +34,13 @@ def Drop_DB():
 # 注册接口
 @index_blu.route('/register/', methods=['POST'])
 def Register():
+    """
+    传参：{
+      "uname": "root",
+      "pwd":"rooter",
+      "source": "155"
+    }
+    """
     if request.method == 'POST':
         data = request.get_data(as_text=True)
         # json_data = request.args
@@ -64,6 +72,12 @@ def Register():
 # 登录接口
 @index_blu.route('/login/', methods=['POST'])
 def Login():
+    """
+    传参：{
+      "uname": "root",
+      "pwd":"rooter"
+    }
+    """
     if request.method == 'POST':
         data = request.get_data(as_text=True)
         json_data = json.loads(data)
@@ -96,6 +110,9 @@ def Login():
 # 注销接口
 @index_blu.route('/logout/', methods=['GET'])
 def LogOut():
+    """
+    传参：?uname=Wzj
+    """
     if request.method == 'GET':
         uname = validate.xss_escape(request.args.get('uname'))
         now_time = ck_login.Current_Time()
@@ -120,6 +137,9 @@ def LogOut():
 # 查询展示接口（快排）
 @index_blu.route('/select/', methods=['GET'])
 def Select_User():
+    """
+    传参：?uname=Wzj
+    """
     if request.method == 'GET':
         uname = validate.xss_escape(request.args.get('uname'))
 
@@ -191,6 +211,14 @@ def Select_User():
 # 用户信息修改
 @index_blu.route('/change/', methods=['PUT'])
 def Change_User():
+    """
+    传参：{
+      "uname": "Zj",
+      "change_name": "Wzj",
+      "change_pwd":"20001126",
+      "change_source":"170"
+    }
+    """
     if request.method == 'PUT':
         data = request.get_data()
         json_data = json.loads(data)
@@ -232,6 +260,9 @@ def Change_User():
 # 删除用户
 @index_blu.route('/del/', methods=['GET'])
 def Del_User():
+    """
+    传参：?uname=Wzj&dname=root
+    """
     if request.method == 'GET':
         uname = validate.xss_escape(request.args.get('uname'))
         del_name = validate.xss_escape(request.args.get('dname'))
@@ -270,6 +301,9 @@ def Del_User():
 
 @index_blu.route('/role/', methods=['POST'])
 def Role():
+    """
+    传参：?uname=Wzj&rname=root&role=管理员
+    """
     if request.method == 'POST':
         uname = validate.xss_escape(request.args.get('uname'))
         rname = validate.xss_escape(request.args.get('rname'))
@@ -339,6 +373,26 @@ def Sql():
     # ================
 
     old_sql = json.loads(data).get('sql')
+    # old_sql = "# config1 script begin. \n" \
+    #         "import MySQLdb\n"\
+    #         "import json\n"\
+    #         "import collections\n"\
+    #         "import pandas as pd\n"\
+    #         "from superset import dataframe\n"\
+    #         "conn = MySQLdb.connect(\n"\
+    #         "    db='szhsjpt',\n"\
+    #         "    host='10.1.90.145',\n"\
+    #         "    port=19103,\n"\
+    #         "    user='root',\n"\
+    #         "    password='rooter',\n"\
+    #         "    charset='utf8')\n"\
+    #         "df = pd.read_sql('SELECT id, -- 序号 name -- 姓名 FROM szhsjpt.bd_common_config where id == 1', con=conn)\n"\
+    #         "old_columns_names = [cl for cl in df.columns]\n"\
+    #         "new_columns_names = dataframe.dedup(old_columns_names)\n"\
+    #         "df.columns = new_columns_names\n"\
+    #         "df_string = df.to_json(orient='records', force_ascii=False)\n"\
+    #         "print(df_string)\n"\
+    #         "# config1 script end."
     if '--' in old_sql:
         new_sql = common_method.find_unchinese(old_sql)
     else:
