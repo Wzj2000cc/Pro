@@ -1,7 +1,7 @@
 import json
 from flask import Blueprint, request, Response
 from applications.models.content_model import Content, db
-from common.utils import common_method, ck_login, validate
+from common.utils import ck_login, validate
 from common.utils.logs import logger
 
 Content_blu = Blueprint('cnt', __name__)
@@ -62,7 +62,7 @@ def Add_Content():
 
 @Content_blu.route('/delcnt/', methods=['POST'])
 def Del_Content():
-    """ 伪删除
+    """ 伪(假)删除
     传参：{
       "uname": "Ysj",
       "content":"xxxxxxxxxxxxxxxxxx"

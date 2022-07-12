@@ -24,6 +24,10 @@ role_dict = {"admin": "管理员", "user": "审计用户", "person": "部门专�
 # 文件加密函数
 @AI_blu.route('/lockfile/', methods=['GET'])
 def Lock_file(key_path=None, *, encoding='utf-8'):
+    """
+    将需要加密的文件存放在 "dst_dir" 路径下;
+    传参：?uname=Zj&file_name=wzjfile.txt
+    """
     uname = validate.xss_escape(request.args.get('uname'))
     file_name = validate.xss_escape(request.args.get('file_name'))
 

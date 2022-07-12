@@ -245,13 +245,12 @@ def Change_User():
             )
             try:
                 db.session.commit()
+                logger.info(f'用户（{uname}）修改个人信息成功, 即将登出')
+                return Response('用户信息修改成功, 即将登出')
             except Exception as e:
                 db.session.rollback()
                 logger.info(f"用户（{uname}）信息修改失败!")
                 logger.error(e)
-
-            logger.info(f'用户（{uname}）修改个人信息成功, 即将登出')
-            return Response('用户信息修改成功, 即将登出')
 
         logger.warning(f'用户（{uname}）修改信息填写不完整')
         return Response('用户修改信息填写不完整')
