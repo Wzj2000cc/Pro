@@ -23,7 +23,7 @@ role_dict = {"admin": "管理员", "user": "审计用户", "person": "部门专�
 
 # 文件加密函数
 @AI_blu.route('/lockfile/', methods=['GET'])
-def Lock_file(key_path=None, *, encoding='utf-8'):
+def Lock_File(key_path=None, *, encoding='utf-8'):
     """
     将需要加密的文件存放在 "dst_dir" 路径下;
     传参：?uname=Zj&file_name=wzjfile.txt
@@ -76,7 +76,7 @@ def Lock_file(key_path=None, *, encoding='utf-8'):
 
 # 文件解密函数
 @AI_blu.route('/unlockfile/', methods=['GET'])
-def decrypt_file(key_path=None, *, encoding='utf-8'):
+def Decrypt_File(key_path=None, *, encoding='utf-8'):
     """
     传参：?uname=Zj&file_name=wzjfile.txt
     """
@@ -197,7 +197,7 @@ def Code_Two():
 
 # img转换素描图
 @AI_blu.route('/wmi/', methods=['GET'])
-def System_spec():
+def System_Spec():
     img_name = validate.xss_escape(request.args.get('img_name'))
     # 读取图片
     img = cv2.imread(file_dir + "/" + img_name + ".jpg")

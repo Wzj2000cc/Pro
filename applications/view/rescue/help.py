@@ -1,7 +1,7 @@
 import json
 from flask import Blueprint, request, Response
 from applications.models.auth_model import User, db
-from common.utils import validate, common_method, logs
+from common.utils import validate, common_method, logs, ck_login
 
 Root_blu = Blueprint('root', __name__)
 
@@ -22,6 +22,11 @@ def Change_Pwd():
         new_pwd = validate.xss_escape(json_data.get('new_pwd'))
         md5_pwd = common_method.md5(new_pwd)
 
+        # ======== 未授权访问校验 ========
+        if not ck_login.is_status('root'):
+            return Response('root当前状态为离线，未授权访问！')
+        # ================
+
         User.query.filter_by(uname=uname).update(
             {'uname': uname, 'pwd': md5_pwd, "status": False}
         )
@@ -41,7 +46,6 @@ def Select_User_Status():
     脚本：查询所有用户当前登陆状态
     """
     result = ''
-    msg = ''
     user_status_dict = {}
     user_list = User.query.all()
     for user in user_list:

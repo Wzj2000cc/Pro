@@ -6,6 +6,7 @@ from applications.view.AI.views import AI_blu
 from applications.view.turtle.views import Turtle_blu
 from applications.view.content.views import Content_blu
 from applications.view.rescue.help import Root_blu
+from applications.view.rescue.views import Sql_blu
 from applications.models.auth_model import db
 
 
@@ -22,6 +23,7 @@ def create_app():
     app.register_blueprint(blueprint=Turtle_blu, url_prefix='/tur')
     app.register_blueprint(blueprint=Content_blu, url_prefix='/cnt')
     app.register_blueprint(blueprint=Root_blu, url_prefix='/root')
+    app.register_blueprint(blueprint=Sql_blu, url_prefix='/sql')
 
     # mysql 配置
     MYSQL_USERNAME = "root"

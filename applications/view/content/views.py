@@ -7,7 +7,7 @@ from common.utils.logs import logger
 Content_blu = Blueprint('cnt', __name__)
 
 
-@Content_blu.route('/addcnt/', methods=['POST'])
+@Content_blu.route('/add_cnt/', methods=['POST'])
 def Add_Content():
     """
     传参：{
@@ -41,12 +41,18 @@ def Add_Content():
         if not uname:
             return Response('用户名输入为空，请重新输入')
         # ================
+
         view_content = None
         if not int(grade) == 1:
             view = validate.xss_escape(json_data.get('view'))
             view_content = validate.xss_escape(json_data.get('view_content'))
-            content_view = Content(view_id=view_id, uname=uname, content=content, grade=grade, view=view,
-                                   view_content=view_content)
+            # 校验用户（view）是否存在（view_content）评论
+            contents = Content.query.filter_by(uname=view, content=view_content).first()
+            if contents:
+                content_view = Content(view_id=view_id, uname=uname, content=content, grade=grade, view=view,
+                                       view_content=view_content)
+            else:
+                return Response(f'用户（{view}）无（{view_content}）评论内容！')
         else:
             content_view = Content(view_id=view_id, uname=uname, content=content, grade=grade)
         try:
@@ -60,12 +66,12 @@ def Add_Content():
             return Response(f'评论失败，报错信息：{E}')
 
 
-@Content_blu.route('/delcnt/', methods=['POST'])
+@Content_blu.route('/del_cnt/', methods=['POST'])
 def Del_Content():
     """ 伪(假)删除
     传参：{
       "uname": "Ysj",
-      "content":"xxxxxxxxxxxxxxxxxx"
+      "content":"xxx"
     }
     """
     if request.method == 'POST':
@@ -102,8 +108,8 @@ def Del_Content():
         return Response('该评论不存在，无法删除')
 
 
-@Content_blu.route('/changecnt/', methods=['POST'])
-def change_Content():
+@Content_blu.route('/change_cnt/', methods=['POST'])
+def Change_Content():
     """ 点赞功能
     传参：{
       "uname": "Ysj",
@@ -138,8 +144,8 @@ def change_Content():
             return Response('该评论不存在，无法删除')
 
 
-@Content_blu.route('/selcnt/', methods=['GET'])
-def select_Content():
+@Content_blu.route('/select_cnt/', methods=['GET'])
+def Select_Content():
     """
     传参：?uname=Wzj&view_id=123456789
     """
