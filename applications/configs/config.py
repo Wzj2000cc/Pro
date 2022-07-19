@@ -6,7 +6,7 @@ from applications.view.AI.views import AI_blu
 from applications.view.turtle.views import Turtle_blu
 from applications.view.content.views import Content_blu
 from applications.view.rescue.help import Root_blu
-from applications.view.rescue.views import Sql_blu
+from applications.view.rescue.views import Data_blu
 from applications.models.auth_model import db
 
 # mysql 配置
@@ -16,6 +16,7 @@ MYSQL_HOST = "127.0.0.1"
 MYSQL_PORT = 3306
 AUDIT_MYSQL_DATABASE = "audit_dataset_db"
 DATASET_DB_DATABASE = "dataset_db"
+TABLE_DATABASE = "information_schema"
 
 
 def create_app():
@@ -31,7 +32,7 @@ def create_app():
     app.register_blueprint(blueprint=Turtle_blu, url_prefix='/tur')
     app.register_blueprint(blueprint=Content_blu, url_prefix='/cnt')
     app.register_blueprint(blueprint=Root_blu, url_prefix='/root')
-    app.register_blueprint(blueprint=Sql_blu, url_prefix='/dataset')
+    app.register_blueprint(blueprint=Data_blu, url_prefix='/dataset')
 
     app.config[
         'SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/" \

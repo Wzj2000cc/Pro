@@ -7,8 +7,9 @@ from datetime import datetime
 from flask import Blueprint, request, Response
 from common.utils import ck_login, validate, common_method, logs
 from applications.configs import config
+from multiprocessing.pool import ThreadPool
 
-Sql_blu = Blueprint('dataset', __name__)
+Data_blu = Blueprint('dataset', __name__)
 
 
 class DateEncoder(json.JSONEncoder):
@@ -19,7 +20,7 @@ class DateEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
-@Sql_blu.route('/sql_json/', methods=['POST'])
+@Data_blu.route('/sql_json/', methods=['POST'])
 def sql_json():
     """
     传参：{
@@ -71,7 +72,7 @@ def sql_json():
             return Response(f'sql语句可能存在语法错误！报错信息提示为：{e}')
 
 
-@Sql_blu.route('/add/', methods=['POST'])
+@Data_blu.route('/add/', methods=['POST'])
 def add():
     """
     传参：{
@@ -141,7 +142,7 @@ def add():
 
 def insert_dataset(table_name, temp_data, column_str):
     """
-
+    json形式数据插入表 table_name
     """
     conn = pymysql.connect(host=config.MYSQL_HOST, user=config.MYSQL_USERNAME, password=config.MYSQL_PASSWORD,
                            database=config.DATASET_DB_DATABASE, charset='utf8')
@@ -151,3 +152,65 @@ def insert_dataset(table_name, temp_data, column_str):
     conn.commit()
     cur.close()
     conn.close()
+
+
+def find_common(pks, name):
+    data_list = []
+    for data in pks:
+        if name in data['TABLE_NAME'] or name in data['TABLE_COMMENT']:
+            data_list.append(data)
+    return data_list
+
+
+@Data_blu.route('/find/', methods=['POST'])
+def Find():
+    """
+    采用双进程模式 ！！！
+    传参：{
+      "uname": "Wzj",
+      "table_name": " "
+    }
+    """
+    if request.method == 'POST':
+        data = request.get_data(as_text=True)
+        json_data = json.loads(data)
+        uname = validate.xss_escape(json_data.get('uname'))
+        table_name = validate.xss_escape(json_data.get('table_name'))
+
+        # ======== 安全登录校验 ========
+        if ck_login.is_status(uname) is None:
+            return Response('该用户不存在，请注册或换账号登录！')
+        if not ck_login.is_status(uname):
+            return Response('当前状态为离线，请重新登录！')
+        if not uname:
+            return Response('用户名输入为空，请重新输入')
+        # ================
+
+        conn = pymysql.connect(host=config.MYSQL_HOST, user=config.MYSQL_USERNAME, password=config.MYSQL_PASSWORD,
+                               database=config.TABLE_DATABASE, charset='utf8')
+        cur = conn.cursor(cursor=pymysql.cursors.DictCursor)
+        select_sql = f"SELECT TABLE_NAME,TABLE_COMMENT FROM TABLES WHERE TABLE_TYPE ='BASE TABLE'"
+        cur.execute(select_sql)
+        result = cur.fetchall()
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        length = int(len(result) / 2)
+        pks1 = result[:length]
+        pks2 = result[length:]
+
+        try:
+            pool = ThreadPool(processes=2)
+            async_result1 = pool.apply_async(find_common, args=(pks1, table_name))
+            async_result2 = pool.apply_async(find_common, args=(pks2, table_name))
+
+            return_val1 = async_result1.get()
+            return_val2 = async_result2.get()
+            find_data = return_val1 + return_val2
+
+            logs.logger.info(f"用户{uname}查询表名'{table_name}',查询结果为：{find_data}")
+            return Response(str(find_data))
+        except Exception as e:
+            logs.logger.info(f'查询失败，原因：{e}')
+            return Response(f'查询失败，原因：{e}')
