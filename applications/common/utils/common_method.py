@@ -4,7 +4,12 @@ import os
 import re
 import shutil
 
+from flask import session, make_response
 from secrets import token_bytes
+from captcha.image import ImageCaptcha
+from PIL import Image
+from random import choices
+from io import BytesIO
 
 
 # md5加密
@@ -36,6 +41,8 @@ def quick_sort(array, start, end):
     array[left] = mid_data
     quick_sort(array, start, left - 1)
     quick_sort(array, left + 1, end)
+
+
 # ========
 
 
@@ -74,6 +81,8 @@ def decrypt(encrypted, key_int):  # 解密单元
     length = (decrypted.bit_length() + 7) // 8  # 计算所占比特大小
     decrypted_bytes = int.to_bytes(decrypted, length, 'big')  # 将int转换回byte
     return decrypted_bytes.decode()
+
+
 # ========
 
 
@@ -88,6 +97,28 @@ def mymovefile(srcfile, dstpath):  # 移动函数
         shutil.move(srcfile, dstpath + fname)  # 移动文件
         print("move %s -> %s" % (srcfile, dstpath + fname))
 
+
 # src_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/test/'
 # dst_dir = '/home/binbao/PycharmProjects/Pro/applications/view/AI/'  # 目的路径记得加斜杠
 # ========
+
+# 生成验证码
+def get_captcha():
+    code, image = gen_captcha()
+    out = BytesIO()
+    session["code"] = code
+    image.save(out, 'png')
+    out.seek(0)
+    resp = make_response(out.read())
+    resp.content_type = 'image/png'
+    return resp, code
+
+
+def gen_captcha(content='2345689abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ'):
+    """ 生成验证码 """
+    image = ImageCaptcha()
+    # 获取字符串
+    captcha_text = "".join(choices(content, k=4)).lower()
+    # 生成图像
+    captcha_image = Image.open(image.generate(captcha_text))
+    return captcha_text, captcha_image

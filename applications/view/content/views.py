@@ -3,6 +3,7 @@ from flask import Blueprint, request, Response
 from applications.models.content_model import Content, db
 from common.utils import ck_login, validate
 from common.utils.logs import logger
+from common.utils.http import success_api, fail_api
 
 Content_blu = Blueprint('cnt', __name__)
 
@@ -35,11 +36,11 @@ def Add_Content():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         view_content = None
@@ -52,7 +53,7 @@ def Add_Content():
                 content_view = Content(view_id=view_id, uname=uname, content=content, grade=grade, view=view,
                                        view_content=view_content)
             else:
-                return Response(f'用户（{view}）无（{view_content}）评论内容！')
+                return fail_api(msg=f'用户（{view}）无（{view_content}）评论内容！')
         else:
             content_view = Content(view_id=view_id, uname=uname, content=content, grade=grade)
         try:
@@ -60,10 +61,10 @@ def Add_Content():
             db.session.commit()
             logger.info(f'用户（{uname}）对模型id为（{view_id}）评论：（{content}）') if int(grade) == 1 else logger.info(
                 f'用户（{uname}）在模型id为{view_id}的（{view_content}）评论下进行了回复（{content}）')
-            return Response('评论成功')
+            return success_api(msg='评论成功')
         except Exception as E:
             print(E)
-            return Response(f'评论失败，报错信息：{E}')
+            return fail_api(msg=f'评论失败，报错信息：{E}')
 
 
 @Content_blu.route('/del_cnt/', methods=['POST'])
@@ -82,11 +83,11 @@ def Del_Content():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         del_objs = Content.query.filter_by(uname=uname, content=content).all()
@@ -104,8 +105,8 @@ def Del_Content():
                 except Exception as E:
                     print(E)
                 logger.info(f'用户（{uname}）删除评论（{content}）成功')
-                return Response('删除成功')
-        return Response('该评论不存在，无法删除')
+                return success_api(msg='删除成功')
+        return fail_api(msg='该评论不存在，无法删除')
 
 
 @Content_blu.route('/change_cnt/', methods=['POST'])
@@ -124,11 +125,11 @@ def Change_Content():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         contents = Content.query.filter_by(uname=uname, content=content).all()
@@ -138,10 +139,10 @@ def Change_Content():
                 try:
                     db.session.commit()
                     logger.info(f'（{uname}）点赞评论（{content}）成功')
-                    return Response('点赞成功')
+                    return success_api(msg='点赞成功')
                 except Exception as E:
                     print(E)
-            return Response('该评论不存在，无法删除')
+            return fail_api(msg='该评论不存在，无法删除')
 
 
 @Content_blu.route('/select_cnt/', methods=['GET'])
@@ -155,11 +156,11 @@ def Select_Content():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         msg = ''
@@ -172,5 +173,5 @@ def Select_Content():
 
         logger.info(f'用户（{uname}）在模型（{view_id}）共有（{len(contents_dic.items())}）条评论：\n'
                     f'{msg}')
-        return Response(f'用户（{uname}）在模型（{view_id}）共有（{len(contents_dic.items())}）条评论：\n'
-                        f'{msg}')
+        return success_api(msg=f'用户（{uname}）在模型（{view_id}）共有（{len(contents_dic.items())}）条评论：\n'
+                               f'{msg}')

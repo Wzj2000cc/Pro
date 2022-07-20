@@ -12,6 +12,7 @@ from reportlab.graphics import renderPM
 from flask import Blueprint, request, Response
 from common.utils import common_method, ck_login, validate
 from common.utils.logs import logger
+from common.utils.http import success_api, fail_api
 from applications.models.auth_model import db, User, Code_two
 
 AI_blu = Blueprint('ai', __name__)
@@ -33,11 +34,11 @@ def Lock_File(key_path=None, *, encoding='utf-8'):
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     path = Path(dst_dir + file_name)
@@ -61,7 +62,7 @@ def Lock_File(key_path=None, *, encoding='utf-8'):
             json.dump(key, f3)
     except Exception as e:
         logger.error(e)
-        return Response('加密文件不支持上传类型')
+        return fail_api(msg='加密文件不支持上传类型')
 
     # 将加密后的文件进行覆盖
     src_dir = str(cwd) + '/'
@@ -71,11 +72,11 @@ def Lock_File(key_path=None, *, encoding='utf-8'):
     os.rmdir(cwd)
 
     logger.info(f'用户（{uname}）对文件{path.name}加密成功')
-    return Response(f'用户（{uname}）对文件{path.name}加密成功')
+    return success_api(msg=f'用户（{uname}）对文件{path.name}加密成功')
 
 
 # 文件解密函数
-@AI_blu.route('/unlockfile/', methods=['GET'])
+@AI_blu.route('/unlock_file/', methods=['GET'])
 def Decrypt_File(key_path=None, *, encoding='utf-8'):
     """
     传参：?uname=Zj&file_name=wzjfile.txt
@@ -85,11 +86,11 @@ def Decrypt_File(key_path=None, *, encoding='utf-8'):
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     path_encrypted = Path(dst_dir + file_name)
@@ -111,7 +112,7 @@ def Decrypt_File(key_path=None, *, encoding='utf-8'):
             f3.write(decrypted)
     except Exception as e:
         logger.error(e)
-        return Response('该文件未进行加密或不支持上传文件的类型')
+        return fail_api(msg='该文件未进行加密或不支持上传文件的类型')
 
     # 将解密后的文件进行覆盖
     src_dir = dst_dir + 'decrypted/'
@@ -122,7 +123,7 @@ def Decrypt_File(key_path=None, *, encoding='utf-8'):
     os.rmdir(src_dir)
 
     logger.info(f'用户（{uname}）对加密文件{path_encrypted.name}解密成功')
-    return Response(f'用户（{uname}）对加密文件{path_encrypted.name}解密成功')
+    return success_api(msg=f'用户（{uname}）对加密文件{path_encrypted.name}解密成功')
 
 
 @AI_blu.route('/code_two/', methods=['POST'])
@@ -142,11 +143,11 @@ def Code_Two():
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     userid = None
@@ -158,7 +159,7 @@ def Code_Two():
     codes = Code_two.query.filter_by(id=userid).all()
     for code in codes:
         if code_name + '.svg' == code.code_name:
-            return Response(f'二维码名称（{code_name}）已存在，请更换后重试')
+            return fail_api(msg=f'二维码名称（{code_name}）已存在，请更换后重试')
         role_code = role_dict.get(code.user.role)
 
     # 生成svg二维码
@@ -187,12 +188,12 @@ def Code_Two():
         db.session.add(code_two)
         db.session.commit()
         logger.info(f"{role_code}（{uname}） 生成二维码（{code_name}）成功!")
-        return Response(f'{role_code}（{uname}） 生成二维码（{code_name}）成功! \n'
-                        'data:image/png;base64,' + img_stream.decode('utf-8'))
+        return success_api(msg=f'{role_code}（{uname}） 生成二维码（{code_name}）成功! \n'
+                               'data:image/png;base64,' + img_stream.decode('utf-8'))
     except Exception as e:
-        logger.info(f"{role_code}（{uname}） 生成二维码（{code_name}）失败!")
-        logger.error(e)
-        return Response(f'{role_code}（{uname}） 生成二维码（{code_name}）失败!')
+        logger.info(f"{role_code}（{uname}） 生成二维码（{code_name}）失败!\n"
+                    f"报错信息{e}")
+        return fail_api(msg=f'{role_code}（{uname}） 生成二维码（{code_name}）失败!')
 
 
 # img转换素描图
@@ -216,4 +217,4 @@ def System_Spec():
     common_method.mymovefile(os.getcwd() + '/' + img_name + '1.jpg', file_dir + '/')
 
     logger.info(f'素描图（{img_name}）生成成功')
-    return Response('素描图生成成功')
+    return success_api(msg='素描图生成成功')

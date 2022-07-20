@@ -8,6 +8,7 @@ from flask import Blueprint, request, Response
 from common.utils import ck_login, validate, common_method, logs
 from applications.configs import config
 from multiprocessing.pool import ThreadPool
+from common.utils.http import success_api, fail_api
 
 Data_blu = Blueprint('dataset', __name__)
 
@@ -37,11 +38,11 @@ def sql_json():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         start_time = datetime.now()
@@ -59,7 +60,6 @@ def sql_json():
                 data_dic = dict(zip(column_list, list(row)))
                 data_list.append(data_dic)
                 result = list(json.dumps(data_list, ensure_ascii=False, cls=DateEncoder))
-            count = len(result)
 
             end_time = datetime.now()
             result_time = end_time - start_time
@@ -69,7 +69,7 @@ def sql_json():
         except Exception as e:
             print(e)
             logs.logger.error(f'运行查询发生错误，报错信息提示为：{e}')
-            return Response(f'sql语句可能存在语法错误！报错信息提示为：{e}')
+            return fail_api(msg=f'sql语句可能存在语法错误！报错信息提示为：{e}')
 
 
 @Data_blu.route('/add/', methods=['POST'])
@@ -90,11 +90,11 @@ def add():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         # 筛选出建表字段
@@ -134,10 +134,11 @@ def add():
             end_time = datetime.now()
             result_time = end_time - start_time
             logs.logger.info(f'用户{uname}保存数据集成功，耗时{result_time}')
-            return Response(f'用户{uname}保存数据集成功，耗时{result_time}')
+            return success_api(msg=f'用户{uname}保存数据集成功，耗时{result_time}')
         except Exception as E:
             print(E)
             logs.logger.error(f'保存数据集发生错误，报错信息为：{E}')
+            return fail_api(msg=f'保存数据集发生错误，报错信息为：{E}')
 
 
 def insert_dataset(table_name, temp_data, column_str):
@@ -179,11 +180,11 @@ def Find():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         conn = pymysql.connect(host=config.MYSQL_HOST, user=config.MYSQL_USERNAME, password=config.MYSQL_PASSWORD,
@@ -210,7 +211,7 @@ def Find():
             find_data = return_val1 + return_val2
 
             logs.logger.info(f"用户{uname}查询表名'{table_name}',查询结果为：{find_data}")
-            return Response(str(find_data))
+            return success_api(msg=str(find_data))
         except Exception as e:
             logs.logger.info(f'查询失败，原因：{e}')
-            return Response(f'查询失败，原因：{e}')
+            return fail_api(msg=f'查询失败，原因：{e}')

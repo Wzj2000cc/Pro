@@ -1,12 +1,14 @@
 import json
 
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, session
 from applications.models.auth_model import User, db
 # from applications.models.content_model import db
 from common.utils import common_method, ck_login, validate
 from common.utils.logs import logger
+from common.utils.http import success_api, fail_api
 
-index_blu = Blueprint('index', __name__)
+index_blu = Blueprint('index', __name__, url_prefix='/index')
+
 role_dict = {"admin": "管理员", "user": "审计用户", "person": "部门专责"}
 weight_dict = {"admin": 3, "user": 1, "person": 2, "None": 1}
 
@@ -18,7 +20,7 @@ def Create_DB():
     """
     db.create_all()
     logger.info('数据库创建成功')
-    return 'create all'
+    return success_api(msg='create all')
 
 
 @index_blu.route('/drop_db/')
@@ -28,7 +30,7 @@ def Drop_DB():
     """
     db.drop_all()
     logger.info('数据库删除成功')
-    return 'drop all'
+    return success_api(msg='drop all')
 
 
 # 注册接口
@@ -52,7 +54,7 @@ def Register():
 
         if not (uname and pwd):
             logger.warning('用户名或密码为空，请规范输入')
-            return Response('用户名或密码为空，请规范输入')
+            return fail_api(msg='用户名或密码为空，请规范输入')
 
         ciphertext = common_method.md5(pwd)
         user = User(uname=uname, pwd=ciphertext, source=source, start_time=now_time)
@@ -61,50 +63,63 @@ def Register():
             db.session.add(user)
             db.session.commit()
             logger.info(f"用户:{uname} 注册成功!")
-            return Response('用户注册成功, 请尽快联系管理员进行角色授权')
+            return success_api(msg='用户注册成功, 请尽快联系管理员进行角色授权')
         except Exception as e:
-            logger.info(f"用户:{uname} 注册失败!")
-            logger.error(e)
-            return Response(f'用户:{uname} 注册失败 \n'
+            logger.error(f"用户:{uname} 注册失败!\n"
+                         f"具体原因：{e}")
+            return fail_api(f'用户:{uname} 注册失败 \n'
                             f'报错信息：{e}')
+
+
+@index_blu.route('/getCaptcha')
+def get_captcha():
+    resp, code = common_method.get_captcha()
+    session["code"] = code
+    print(f'验证码{code}')
+    return resp
 
 
 # 登录接口
 @index_blu.route('/login/', methods=['POST'])
 def Login():
     """
+    登录前先行调用'/index/getCaptcha/'接口获取验证码！！！
     传参：{
-      "uname": "root",
-      "pwd":"rooter"
-    }
+    "uname": "root",
+    "pwd":"rooter",
+    "code":"gip5"
+}
     """
+
     if request.method == 'POST':
         data = request.get_data(as_text=True)
         json_data = json.loads(data)
         uname = validate.xss_escape(json_data.get('uname'))
         pwd = validate.xss_escape(json_data.get('pwd'))
+        codes = validate.xss_escape(json_data.get('code'))
         now_time = ck_login.Current_Time()
         user_list = User.query.filter_by(uname=uname).all()
+        code = session.get("code", None)
 
         if not user_list:
-            return Response(f'用户（{uname}）不存在，请注册或换账号登录！')
+            return fail_api(msg=f'用户（{uname}）不存在，请注册或换账号登录！')
 
         for user in user_list:
             if uname == user.uname and common_method.md5(pwd) == user.pwd:
-                user.status = True
-                user.count += 1
-                user.last_time = now_time
-                try:
-                    db.session.commit()
-                except Exception as e:
-                    logger.info(f"用户:{uname} 登录失败!")
-                    logger.error(e)
+                if codes == code:
+                    user.status = True
+                    user.count += 1
+                    user.last_time = now_time
+                    try:
+                        db.session.commit()
+                    except Exception as e:
+                        logger.error(f"用户:{uname} 登录时出错!\n"
+                                     f"具体原因：{e}")
 
-                logger.info(f'（{uname}）用户已登录Pro平台')
-                return Response('当前登录账户：{}, 欢迎登录Pro平台！'.format(uname))
-
-            logger.warning('用户名或密码错误')
-            return Response('用户名或密码错误')
+                    logger.info(f'（{uname}）用户已登录Pro平台')
+                    return success_api(msg='当前登录账户：{}, 欢迎登录Pro平台！'.format(uname))
+                return fail_api(msg='验证码错误')
+            return fail_api(msg='用户名或密码错误')
 
 
 # 注销接口
@@ -119,19 +134,19 @@ def LogOut():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         try:
             return ck_login.del_login(uname, now_time)
         except Exception as e:
-            logger.info(f"用户（{uname}）注销失败!")
-            logger.error(e)
-            return Response('系统异常，请联系管理员')
+            logger.error(f"用户（{uname}）注销失败!\n"
+                         f"具体原因：{e}")
+            return fail_api(msg='系统异常，请联系管理员')
 
 
 # 查询展示接口（快排）
@@ -145,11 +160,11 @@ def Select_User():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         users = User.query.filter_by(uname=uname).all()
@@ -231,11 +246,11 @@ def Change_User():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         if change_uname and common_method.md5(change_pwd) and change_source:
@@ -246,56 +261,56 @@ def Change_User():
             try:
                 db.session.commit()
                 logger.info(f'用户（{uname}）修改个人信息成功, 即将登出')
-                return Response('用户信息修改成功, 即将登出')
+                return success_api('用户信息修改成功, 即将登出')
             except Exception as e:
                 db.session.rollback()
-                logger.info(f"用户（{uname}）信息修改失败!")
-                logger.error(e)
+                logger.error(f"用户（{uname}）信息修改失败!\n"
+                             f"报错信息{e}")
 
         logger.warning(f'用户（{uname}）修改信息填写不完整')
-        return Response('用户修改信息填写不完整')
+        return fail_api(msg='用户修改信息填写不完整')
 
 
 # 删除用户
 @index_blu.route('/del/', methods=['GET'])
 def Del_User():
     """
-    传参：?uname=Wzj&dname=root
+    传参：?uname=Wzj&del_name=root
     """
     if request.method == 'GET':
         uname = validate.xss_escape(request.args.get('uname'))
-        del_name = validate.xss_escape(request.args.get('dname'))
+        del_name = validate.xss_escape(request.args.get('del_name'))
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         global weight_dict, role_dict
-        duser = None
+        del_user = None
 
         users = User.query.filter_by(uname=uname).all()
         del_users = User.query.filter_by(uname=del_name).all()
 
-        for duser in del_users:
+        for del_user in del_users:
             pass
         for user in users:
-            if weight_dict.get(user.role) > weight_dict.get(duser.role):
+            if weight_dict.get(user.role) > weight_dict.get(del_user.role):
                 try:
                     db.session.delete(user)
                     db.session.commit()
-                    logger.info(f'{role_dict.get(user.role)}（{user.uname}）将用户（{duser.uname}）删除成功!')
-                    return Response(f'{role_dict.get(user.role)}（{user.uname}）将用户（{duser.uname}）删除成功!')
+                    logger.info(f'{role_dict.get(user.role)}（{user.uname}）将用户（{del_user.uname}）删除成功!')
+                    return Response(f'{role_dict.get(user.role)}（{user.uname}）将用户（{del_user.uname}）删除成功!')
                 except Exception as e:
-                    logger.info(f"用户（{uname}）删除失败!")
-                    logger.error(e)
+                    logger.error(f"用户（{uname}）删除失败!\n"
+                                 f"报错信息{e}")
             else:
-                logger.info(f'{role_dict.get(user.role)}（{user.uname}）将用户（{duser.uname}）删除成功!')
-                return Response(f'{role_dict.get(user.role)}（{user.uname}）将用户（{duser.uname}）删除成功!')
+                logger.info(f'{role_dict.get(user.role)}（{user.uname}）将用户（{del_user.uname}）删除成功!')
+                return fail_api(msg=f'{role_dict.get(user.role)}（{user.uname}）将用户（{del_user.uname}）删除成功!')
 
 
 @index_blu.route('/role/', methods=['POST'])
@@ -312,11 +327,11 @@ def Role():
 
         # ======== 安全登录校验 ========
         if ck_login.is_status(uname) is None:
-            return Response('该用户不存在，请注册或换账号登录！')
+            return fail_api(msg='该用户不存在，请注册或换账号登录！')
         if not ck_login.is_status(uname):
-            return Response('当前状态为离线，请重新登录！')
+            return fail_api(msg='当前状态为离线，请重新登录！')
         if not uname:
-            return Response('用户名输入为空，请重新输入')
+            return fail_api(msg='用户名输入为空，请重新输入')
         # ================
 
         global weight_dict, role_dict
@@ -337,9 +352,9 @@ def Role():
             old_role = duser.role
 
         if weight_dict.get(user.role) is None:
-            return Response('当前登录用户无身份，请联系管理员进行赋权或更换账户')
+            return fail_api(msg='当前登录用户无身份，请联系管理员进行赋权或更换账户')
         if role == old_drole:
-            return Response('权限未变动，请重新设置')
+            return fail_api(msg='权限未变动，请重新设置')
 
         if weight_dict.get(duser.role) is None or weight_dict.get(user.role) > weight_dict.get(duser.role):
             duser.role = drole
@@ -347,14 +362,14 @@ def Role():
                 db.session.commit()
                 if not old_role:
                     logger.info(f'{urole}（{user.uname}）将用户（{duser.uname}）由无身份改为{role}')
-                    return Response(f'{urole}（{user.uname}）将用户（{duser.uname}）由无身份改为{role}')
+                    return success_api(f'{urole}（{user.uname}）将用户（{duser.uname}）由无身份改为{role}')
                 logger.info(f'{urole}（{user.uname}）将用户（{duser.uname}）身份由{old_drole}改为{role}')
-                return Response(f'{urole}（{user.uname}）将用户（{duser.uname}）身份由{old_drole}改为{role}')
+                return success_api(f'{urole}（{user.uname}）将用户（{duser.uname}）身份由{old_drole}改为{role}')
             except Exception as e:
-                logger.info(f"{urole}（{user}）修改用户（{duser}）权限失败")
-                logger.error(e)
+                logger.error(f"{urole}（{user}）修改用户（{duser}）权限失败\n"
+                             f"报错信息{e}")
         else:
-            return Response(f'当前登录账户身份：{urole}，没有修改目标角色的权限')
+            return success_api(f'当前登录账户身份：{urole}，没有修改目标角色的权限')
 
 
 @index_blu.route('/sql/', methods=['POST'])
@@ -364,11 +379,11 @@ def Sql():
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     old_sql = json.loads(data).get('sql')
@@ -400,4 +415,4 @@ def Sql():
     logger.info(f'用户{uname} 执行sql优化操作 \n'
                 f'待优化sql：{old_sql} \n'
                 f'优化后sql：{new_sql}')
-    return new_sql
+    return success_api(msg=new_sql)

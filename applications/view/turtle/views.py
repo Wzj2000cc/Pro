@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, Response
 from common.utils import ck_login, validate, logs
+from common.utils.http import success_api, fail_api
 
 Turtle_blu = Blueprint('tur', __name__)
 algorithm_dict = {"冒泡排序": "bubbleSort", "选择排序": "selectionSort", "插入排序": "insertionSort", "希尔排序": "shellSort",
@@ -191,11 +192,11 @@ def algorithm():
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     alg_obj = Algorithm()
@@ -215,9 +216,9 @@ def algorithm():
     logs.logger.info(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）\n'
                      f'耗时（{end - start}）\n'
                      f'计算结果为（{result}）')
-    return Response(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）\n'
-                    f'耗时（{end - start}）\n'
-                    f'计算结果为（{result}）')
+    return success_api(f'用户（{uname}）使用（{sort_name}）计算了数列（{user_list}）\n'
+                       f'耗时（{end - start}）\n'
+                       f'计算结果为（{result}）')
 
 
 # ================= 二分查找算法 ========================
@@ -231,16 +232,16 @@ def algorithm_two():
 
     # ======== 安全登录校验 ========
     if ck_login.is_status(uname) is None:
-        return Response('该用户不存在，请注册或换账号登录！')
+        return fail_api(msg='该用户不存在，请注册或换账号登录！')
     if not ck_login.is_status(uname):
-        return Response('当前状态为离线，请重新登录！')
+        return fail_api(msg='当前状态为离线，请重新登录！')
     if not uname:
-        return Response('用户名输入为空，请重新输入')
+        return fail_api(msg='用户名输入为空，请重新输入')
     # ================
 
     result = two_search(num_list, find_num)
 
     logs.logger.info(f'用户（{uname}）提供的数列为：{num_list}, '
                      f'使用（二分查找算法）查找的数字（{find_num}）位于第（{int(result) + 1}）位')
-    return Response(f'用户（{uname}）提供的数列为：{num_list} \n'
-                    f'使用（二分查找算法）查找的数字（{find_num}）位于第（{int(result) + 1}）位')
+    return success_api(f'用户（{uname}）提供的数列为：{num_list} \n'
+                       f'使用（二分查找算法）查找的数字（{find_num}）位于第（{int(result) + 1}）位')
