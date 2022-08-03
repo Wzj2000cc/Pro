@@ -7,7 +7,7 @@ from common.utils.http import success_api, fail_api
 Root_blu = Blueprint('root', __name__)
 
 
-@Root_blu.route('/change_pwd/', methods=['POST'])
+@Root_blu.route('/change_pwd', methods=['POST'])
 def Change_Pwd():
     """
     脚本：针对忘记密码紧急应对策略
@@ -43,7 +43,7 @@ def Change_Pwd():
                                 f"报错信息{e}")
 
 
-@Root_blu.route('/select_user_status/', methods=['GET'])
+@Root_blu.route('/select_user_status', methods=['GET'])
 def Select_User_Status():
     """
     脚本：查询所有用户当前登陆状态

@@ -13,7 +13,7 @@ role_dict = {"admin": "管理员", "user": "审计用户", "person": "部门专�
 weight_dict = {"admin": 3, "user": 1, "person": 2, "None": 1}
 
 
-@index_blu.route('/create_db/')
+@index_blu.route('/create_db')
 def Create_DB():
     """
     创建数据库
@@ -23,7 +23,7 @@ def Create_DB():
     return success_api(msg='create all')
 
 
-@index_blu.route('/drop_db/')
+@index_blu.route('/drop_db')
 def Drop_DB():
     """
     删除数据库
@@ -34,7 +34,7 @@ def Drop_DB():
 
 
 # 注册接口
-@index_blu.route('/register/', methods=['POST'])
+@index_blu.route('/register', methods=['POST'])
 def Register():
     """
     传参：{
@@ -80,7 +80,7 @@ def get_captcha():
 
 
 # 登录接口
-@index_blu.route('/login/', methods=['POST'])
+@index_blu.route('/login', methods=['POST'])
 def Login():
     """
     登录前先行调用'/index/getCaptcha/'接口获取验证码！！！
@@ -123,7 +123,7 @@ def Login():
 
 
 # 注销接口
-@index_blu.route('/logout/', methods=['GET'])
+@index_blu.route('/logout', methods=['GET'])
 def LogOut():
     """
     传参：?uname=Wzj
@@ -150,7 +150,7 @@ def LogOut():
 
 
 # 查询展示接口（快排）
-@index_blu.route('/select/', methods=['GET'])
+@index_blu.route('/select', methods=['GET'])
 def Select_User():
     """
     传参：?uname=Wzj
@@ -224,7 +224,7 @@ def Select_User():
 
 
 # 用户信息修改
-@index_blu.route('/change/', methods=['PUT'])
+@index_blu.route('/change', methods=['PUT'])
 def Change_User():
     """
     传参：{
@@ -272,7 +272,7 @@ def Change_User():
 
 
 # 删除用户
-@index_blu.route('/del/', methods=['GET'])
+@index_blu.route('/del', methods=['GET'])
 def Del_User():
     """
     传参：?uname=Wzj&del_name=root
@@ -313,7 +313,7 @@ def Del_User():
                 return fail_api(msg=f'{role_dict.get(user.role)}（{user.uname}）将用户（{del_user.uname}）删除成功!')
 
 
-@index_blu.route('/role/', methods=['POST'])
+@index_blu.route('/role', methods=['POST'])
 def Role():
     """
     传参：?uname=Wzj&rname=root&role=管理员
@@ -372,7 +372,7 @@ def Role():
             return success_api(f'当前登录账户身份：{urole}，没有修改目标角色的权限')
 
 
-@index_blu.route('/sql/', methods=['POST'])
+@index_blu.route('/sql', methods=['POST'])
 def Sql():
     data = request.get_data()
     uname = validate.xss_escape(json.loads(data).get('uname'))

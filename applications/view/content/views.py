@@ -8,7 +8,7 @@ from common.utils.http import success_api, fail_api
 Content_blu = Blueprint('cnt', __name__)
 
 
-@Content_blu.route('/add_cnt/', methods=['POST'])
+@Content_blu.route('/add_cnt', methods=['POST'])
 def Add_Content():
     """
     传参：{
@@ -67,7 +67,7 @@ def Add_Content():
             return fail_api(msg=f'评论失败，报错信息：{E}')
 
 
-@Content_blu.route('/del_cnt/', methods=['POST'])
+@Content_blu.route('/del_cnt', methods=['POST'])
 def Del_Content():
     """ 伪(假)删除
     传参：{
@@ -109,7 +109,7 @@ def Del_Content():
         return fail_api(msg='该评论不存在，无法删除')
 
 
-@Content_blu.route('/change_cnt/', methods=['POST'])
+@Content_blu.route('/change_cnt', methods=['POST'])
 def Change_Content():
     """ 点赞功能
     传参：{
@@ -145,7 +145,7 @@ def Change_Content():
             return fail_api(msg='该评论不存在，无法删除')
 
 
-@Content_blu.route('/select_cnt/', methods=['GET'])
+@Content_blu.route('/select_cnt', methods=['GET'])
 def Select_Content():
     """
     传参：?uname=Wzj&view_id=123456789

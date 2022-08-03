@@ -181,7 +181,7 @@ def two_search(l, aim, start=0, end=None):
         return '没有此值'
 
 
-@Turtle_blu.route('/alg/', methods=['POST'])
+@Turtle_blu.route('/alg', methods=['POST'])
 def algorithm():
     data = request.get_data()
     json_data = json.loads(data)
@@ -222,7 +222,7 @@ def algorithm():
 
 
 # ================= 二分查找算法 ========================
-@Turtle_blu.route('/alg2/', methods=['POST'])
+@Turtle_blu.route('/alg2', methods=['POST'])
 def algorithm_two():
     data = request.get_data()
     json_data = json.loads(data)
